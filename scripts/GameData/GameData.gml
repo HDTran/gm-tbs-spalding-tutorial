@@ -1,5 +1,33 @@
+// action library
+global.actionLibrary = {
+    attack: {
+        name: "Attack", 
+        description: "{0} attacks!",
+        subMenu: -1,
+        targetRequired: true,
+        targetEnemyByDefault: true,
+        targetAll: MODE.NEVER,
+        userAnimation: "attack",
+        effectSprite: sAttackBonk,
+        effectOnTarget: MODE.ALWAYS,
+        func: function(_user, _targets) {
+            // even if single target, use a single target in an array for _targets for simplicity of the function
+            var _damage = ceil(_user.strength + random_range(-_user.strength * 0.25, _user.strength *0.25));
+            with(_targets[0]) {
+                hp = max(0, hp - _damage);
+            }
+        }
+    }
+}
 
-//Party data
+enum MODE
+{
+    NEVER = 0,
+    ALWAYS = 1,
+    VARIES = 2
+}
+
+// party data
 global.party = 
 [
 	{
