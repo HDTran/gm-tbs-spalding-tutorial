@@ -1,0 +1,17 @@
+instance_deactivate_all(true); // oBattle will take over everything
+
+// set up battle
+units = [];
+
+// make enemies
+for (var i = 0; i < array_length(enemies); i++) {
+    enemyUnits[i] = instance_create_depth(x+250+(i*10), y+68+(i*20), depth-10, oBattleUnitEnemy, enemies[i]);
+    // multiple rows canm be done with (x+250+((i mod 3)*10)+((i div 3)*25),y+68+((i mod 3)*20)
+    array_push(units, enemyUnits[i]);
+}
+
+// make party
+for (var i = 0; i < array_length(global.party); i++) {
+    partyUnits[i] = instance_create_depth(x+70+(i*10), y+68+(i*20), depth-10, oBattleUnitPC, global.party[i]);
+    array_push(units, partyUnits[i]);
+}
