@@ -1,0 +1,1 @@
+// override default draw, it's handled by oBattle
