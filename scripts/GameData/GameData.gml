@@ -13,9 +13,7 @@ global.actionLibrary = {
         func: function(_user, _targets) {
             // even if single target, use a single target in an array for _targets for simplicity of the function
             var _damage = ceil(_user.strength + random_range(-_user.strength * 0.25, _user.strength *0.25));
-            with(_targets[0]) {
-                hp = max(0, hp - _damage);
-            }
+            BattleChangeHP(_targets[0], -_damage, 0);
         }
     }
 }
