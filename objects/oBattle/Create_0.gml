@@ -43,36 +43,62 @@ RefreshRenderOrder();
 
 // state steps
 function BattleStateSelectionAction() {
-    // get current unit
-    var _unit = unitTurnOrder[turn];
-    
-    // is the unit dead or unable to act?
-    if ((!instance_exists(_unit)) || (_unit.hp <= 0)) {
-        battleState = BattleStateVictoryCheck;
-        exit;
-    }
-    
-    // select an action to perform
-    // BeginAction(_unit.id, global.actionLibrary.attack, _unit.id); // TODO: Fix this by deleting and replacing
-    
-    // if unit is player controlled
-    if (_unit.object_index == oBattleUnitPC) {
-        // TODO: Placeholder to auto-battle
-        var _action = global.actionLibrary.attack;
+    if (!instance_exists(oMenu)) {
+        // get current unit
+        var _unit = unitTurnOrder[turn];
+        
+        // is the unit dead or unable to act?
+        if ((!instance_exists(_unit)) || (_unit.hp <= 0)) {
+            battleState = BattleStateVictoryCheck;
+            exit;
+        }
+        
+        // select an action to perform
+        // BeginAction(_unit.id, global.actionLibrary.attack, _unit.id); // TODO: Fix this by deleting and replacing
+        
+        // if unit is player controlled
+        if (_unit.object_index == oBattleUnitPC) {
+            // compile the action menu
+            var _menuOptions = [];
+            var _subMenus = {};
             
-        var _possibleTargets = array_filter(oBattle.enemyUnits, function(_unit, _index) {
-        return (_unit.hp > 0); 
-        });
-        var _target = _possibleTargets[irandom(array_length(_possibleTargets)-1)];
-        
-        // TODO: game will crash if there are no valid targets currently
-        
-        BeginAction(_unit.id, _action, _target);
-    } else {
-        // if unit is AI controlled
-        var _enemyAction = _unit.AIscript();
-        if (_enemyAction != -1) {
-            BeginAction(_unit.id, _enemyAction[0], _enemyAction[1]);
+            var _actionList = _unit.actions;
+            
+            for(var i = 0; i < array_length(_actionList); i++) {
+                var _action = _actionList[i];
+                var _available = true; // later we'll check mp cost here...
+                var _nameAndCount = _action.name; // TODO: later we'll modify the name to include the item count, if the action is an item
+                if (_action.subMenu == -1) {
+                    array_push(_menuOptions, [_nameAndCount, MenuSelectAction, [_unit, _action], _available]);
+                } else {
+                    // create or add to a submenu
+                    if (is_undefined(_subMenus[$ _action.subMenu])) {
+                        variable_struct_set(_subMenus, _action.subMenu, [[_nameAndCount, MenuSelectAction, [_unit, _action], _available]]);
+                    } else {
+                        array_push(_subMenus[$ _action.subMenu], [_nameAndCount, MenuSelectAction, [_unit, _action], _available]);
+                    }
+                }
+                
+                // turn sub menu struct back to array to add
+                var _subMenusArray = variable_struct_get_names(_subMenus); // like JavaScript Object.keys
+                for (var i = 0; i < array_length(_subMenusArray); i++) {
+                    // TODO: sort submenu if needed here
+                    
+                    // add back option at the end of each submenu
+                    array_push(_subMenus[$ _subMenusArray[i]], ["Back", MenuGoBack, -1, true]);
+                    
+                    // add submenu into main menu
+                    array_push(_menuOptions, [_subMenusArray[i], SubMenu, [_subMenus[$ _subMenusArray[i]]], true]);
+                }
+            }
+            
+            Menu(x+10, y+110, _menuOptions, , 74, 60); // GMS allowing no parameters here is weird to skip a function call
+        } else {
+            // if unit is AI controlled
+            var _enemyAction = _unit.AIscript();
+            if (_enemyAction != -1) {
+                BeginAction(_unit.id, _enemyAction[0], _enemyAction[1]);
+            }
         }
     }
 }

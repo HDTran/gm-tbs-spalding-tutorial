@@ -15,6 +15,23 @@ global.actionLibrary = {
             var _damage = ceil(_user.strength + random_range(-_user.strength * 0.25, _user.strength *0.25));
             BattleChangeHP(_targets[0], -_damage, 0);
         }
+    },
+    ice: {
+        name: "Ice",
+        description: "{0} casts Ice!",
+        subMenu: "Magic",
+        mpCost: 4,
+        targetRequired: true,
+        targetEnemyByDefault: true, // 0: party/self, 1: enemy
+        targetAll: MODE.NEVER,
+        userAnimation: "cast",
+        effectSprite: sAttackIce,
+        effectOnTarget: MODE.ALWAYS,
+        func: function(_user, _targets) {
+            var _damage = irandom_range(10, 15);
+            BattleChangeHP(_targets[0], -_damage);
+            // BattleChangeMP(_user, -mpCost);
+        }
     }
 }
 
@@ -36,7 +53,7 @@ global.party =
 		mpMax: 15,
 		strength: 6,
 		sprites : { idle: sLuluIdle, attack: sLuluAttack, defend: sLuluDefend, down: sLuluDown},
-		actions : []
+		actions : [global.actionLibrary.attack]
 	}
 	,
 	{
@@ -47,7 +64,7 @@ global.party =
 		mpMax: 30,
 		strength: 4,
 		sprites : { idle: sQuestyIdle, attack: sQuestyCast, cast: sQuestyCast, down: sQuestyDown},
-		actions : []
+		actions : [global.actionLibrary.attack, global.actionLibrary.ice]
 	}
 ]
 
