@@ -83,3 +83,29 @@ for (var i = 0; i < array_length(partyUnits); i++) {
     
     draw_set_color(c_white);
 }
+
+// draw target cursor
+if (cursor.active) {
+    with (cursor) {
+        if (activeTarget != noone) {
+            if (!is_array(activeTarget)) {
+                draw_sprite(sPointer, 0, activeTarget.x, activeTarget.y);
+            } else {
+                draw_set_alpha(sin(get_timer()/50000)+1); // pulsing effect every 2.5 seconds
+                for (var i = 0; i < array_length(activeTarget); i++) {
+                    draw_sprite(sPointer, 0, activeTarget[i].x, activeTarget[i].y);
+                }
+                draw_set_alpha(1.0); // reset draw alpha after drawing
+            }
+        }
+    }
+}
+
+// draw battle text
+if (battleText != "") {
+    var _w = string_width(battleText) + 20;
+    draw_sprite_stretched(sBox, 0, x+160-(_w*0.5), y+5, _w, 25);
+    draw_set_halign(fa_center);
+    draw_set_color(c_white);
+    draw_text(x+160, y+10, battleText);
+}

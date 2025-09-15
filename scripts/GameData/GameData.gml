@@ -23,13 +23,19 @@ global.actionLibrary = {
         mpCost: 4,
         targetRequired: true,
         targetEnemyByDefault: true, // 0: party/self, 1: enemy
-        targetAll: MODE.NEVER,
+        targetAll: MODE.VARIES,
         userAnimation: "cast",
         effectSprite: sAttackIce,
         effectOnTarget: MODE.ALWAYS,
         func: function(_user, _targets) {
-            var _damage = irandom_range(10, 15);
-            BattleChangeHP(_targets[0], -_damage);
+            for (var i = 0; i < array_length(_targets); i++) {
+                var _damage = irandom_range(15, 20);
+                if (array_length(_targets) > 1) {
+                    _damage = ceil(_damage*0.75);
+                }
+                BattleChangeHP(_targets[i], -_damage);
+            }
+            // TODO: Implement BattleChangeMP and subtract the MP appropriately
             // BattleChangeMP(_user, -mpCost);
         }
     }
@@ -58,7 +64,7 @@ global.party =
 	,
 	{
 		name: "Questy",
-		hp: 18,
+		hp: 44,
 		hpMax: 44,
 		mp: 20,
 		mpMax: 30,

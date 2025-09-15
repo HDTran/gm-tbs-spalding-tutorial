@@ -3,16 +3,28 @@ instance_deactivate_all(true); // oBattle will take over everything
 // set up battle
 units = [];
 turn = 0;
-unitTurnOrder = [];
-unitRenderOrder = [];
-
 turnCount = 0;
 roundCount = 0;
 battleWaitTimeFrames = 30;
 battleWaitTimeRemaining = 0;
+battleText = "";
 currentUser = noone;
 currentAction = -1;
 currentTargets = noone;
+unitTurnOrder = [];
+unitRenderOrder = [];
+
+// make targetting cursor
+cursor = {
+    activeUser: noone,
+    activeTarget: noone, // determined by cursor
+    activeAction: -1,
+    targetSide: -1, // player side or enemy side
+    targetIndex: 0, // index of the unit array once the side is determined
+    targetAll: false, // whether it's just targeting all on the side
+    confirmDelay: 0, // make sure we aren't picking our target with the same key press as the menu
+    active: false // turns the cursor on/off
+};
 
 // make enemies
 for (var i = 0; i < array_length(enemies); i++) {
@@ -78,18 +90,18 @@ function BattleStateSelectionAction() {
                         array_push(_subMenus[$ _action.subMenu], [_nameAndCount, MenuSelectAction, [_unit, _action], _available]);
                     }
                 }
+            }
+            
+            // turn sub menu struct back to array to add
+            var _subMenusArray = variable_struct_get_names(_subMenus); // like JavaScript Object.keys
+            for (var i = 0; i < array_length(_subMenusArray); i++) {
+                // TODO: sort submenu if needed here
                 
-                // turn sub menu struct back to array to add
-                var _subMenusArray = variable_struct_get_names(_subMenus); // like JavaScript Object.keys
-                for (var i = 0; i < array_length(_subMenusArray); i++) {
-                    // TODO: sort submenu if needed here
-                    
-                    // add back option at the end of each submenu
-                    array_push(_subMenus[$ _subMenusArray[i]], ["Back", MenuGoBack, -1, true]);
-                    
-                    // add submenu into main menu
-                    array_push(_menuOptions, [_subMenusArray[i], SubMenu, [_subMenus[$ _subMenusArray[i]]], true]);
-                }
+                // add back option at the end of each submenu
+                array_push(_subMenus[$ _subMenusArray[i]], ["Back", MenuGoBack, -1, true]);
+                
+                // add submenu into main menu
+                array_push(_menuOptions, [_subMenusArray[i], SubMenu, [_subMenus[$ _subMenusArray[i]]], true]);
             }
             
             Menu(x+10, y+110, _menuOptions, , 74, 60); // GMS allowing no parameters here is weird to skip a function call
@@ -107,6 +119,8 @@ function BeginAction(_user, _action, _targets) {
     currentUser = _user;
     currentAction = _action;
     currentTargets = _targets;
+    
+    battleText = string_ext(_action.description, [_user.name]);
     
     if (!is_array(currentTargets)) {
         currentTargets = [currentTargets];
@@ -168,6 +182,7 @@ function BattleStateVictoryCheck() {
 }
 
 function BattleStateTurnProgression() {
+    battleText = ""; // reset battle text
     turnCount++;
     turn++;
     
